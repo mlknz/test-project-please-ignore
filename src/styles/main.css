@@ -1,0 +1,46 @@
+body {
+    background: red;
+    height: 100%;
+    margin:0;
+}
+
+.canvas {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+}
+
+.loadingScreen, .loadingScreen-hidden {
+    background: linear-gradient(45deg, #132244 0%, #111100 100%);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    z-index: 998;
+
+    transition: opacity 0.5s ease-in-out;
+    -webkit-transition: opacity 0.5s ease-in-out;
+    -moz-transition: opacity 0.5s ease-in-out;
+    -o-transition: opacity 0.5s ease-in-out;
+}
+.loadingScreen-hidden {
+    opacity: 0;
+}
+
+.progressBar {
+    pointer-events: none;
+    cursor: default;
+
+    box-sizing: border-box;
+    border-style: solid;
+    border-radius: 37px;
+
+    background: rgba(255, 100, 100, 0.5);
+    position: absolute;
+    width: 30%;
+    height: 10%;
+    top: 45%;
+    left: 35%;
+}
