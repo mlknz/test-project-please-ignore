@@ -55,7 +55,7 @@ class AppViewer {
         gamestate.activePhase = gamestate.phasesSeq[gamestate.activePhaseIndex];
 
         this.env = new Env(this.sceneManager.assetsLoader.assets);
-        this.sceneManager.scene.add(this.env);
+        this.sceneManager.scene.add(this.env.mesh);
 
         this.tracks = new Tracks(this.sceneManager.assetsLoader.assets);
         this.sceneManager.scene.add(this.tracks.mesh);
@@ -65,7 +65,8 @@ class AppViewer {
 
         this.cards = new Cards(this.sceneManager.assetsLoader.assets);
         this.sceneManager.scene.add(this.cards.mesh);
-        this._giveCardsToPlayer();
+        this._giveCardsToPlayer(true);
+        this._giveCardsToPlayer(false);
     }
 
     update(dt) {
@@ -74,13 +75,14 @@ class AppViewer {
         config.time += dt;
 
         this.controls.update(dt);
+        raycaster.setFromCamera(mouse, this.camera);
         if (this._playerActive() && gamestate.activeCard) {
             gamestate.activeCard.position.x = mouse.x * aspectRatio * 0.5;
             gamestate.activeCard.position.y = mouse.y * 0.5;
 
             raycaster.setFromCamera(mouse, this.camera);
             const intersects = raycaster.intersectObjects(this.tracks.mesh.children);
-            const obj = intersects[0] ? intersects[0].object : null;
+            const obj = intersects[0] ? intersects[0].object : null; // todo: highlight cards on hover
             if (obj) {
                 if (gamestate.activeTrack) {
                     if (gamestate.activeTrack.uuid !== obj.uuid) {
@@ -100,6 +102,16 @@ class AppViewer {
             }
         }
 
+        if (this._playerActive()) {
+            const intersects = raycaster.intersectObjects(this.env.mesh.children);
+            const obj = intersects[0] ? intersects[0].object : null;
+            if (!obj || obj.name !== 'shuffle_button') {
+                this.env.shuffleButton.material.color = this.env.shuffleButton.userData.defaultColor;
+            } else {
+                this.env.shuffleButton.material.color = this.env.shuffleButton.userData.selectedColor;
+            }
+        }
+
         this.renderer.render(this.sceneManager.scene, this.camera);
     }
 
@@ -111,28 +123,40 @@ class AppViewer {
         return gamestate.activePhase === gamestate.phases.PLAYER_ATTACK || gamestate.activePhase === gamestate.phases.PLAYER_DEFENCE;
     }
 
-    _giveCardsToPlayer() {
+    _giveCardsToPlayer(isFriendly) {
+        const hand = isFriendly ? gamestate.playerHand : gamestate.enemyHand;
         for (let i = 0; i < 4; ++i) {
-            if (!gamestate.playerHand[i]) this._giveCardToPlayer(i);
+            if (!hand[i]) this._giveCardToPlayer(isFriendly, i);
         }
     }
-    _giveCardToPlayer(index) {
-        gamestate.playerHand[index] = generateCard();
-        this.cards.updatePlayerCard(index, gamestate.playerHand[index]);
+    _giveCardToPlayer(isFriendly, index) {
+        const hand = isFriendly ? gamestate.playerHand : gamestate.enemyHand;
+        hand[index] = generateCard();
+        if (isFriendly) this.cards.updatePlayerCard(index, hand[index]);
+    }
+
+    _shuffleRemainingCards() { // todo: once per turn
+        const hand = gamestate.playerHand;
+        for (let i = 0; i < 4; ++i) {
+            if (hand[i]) this._giveCardToPlayer(true, i);
+        }
     }
 
     playCard(isFriendly, cardIndex, trackIndex) {
-        this.cards.hideCard(isFriendly, cardIndex);
+        if (isFriendly) this.cards.hideCard(cardIndex);
         const hand = isFriendly ? gamestate.playerHand : gamestate.enemyHand;
         this.tracks.spawnUnitOnTrack(isFriendly, trackIndex, hand[cardIndex]);
         // todo: tower dmg
+        hand[cardIndex] = null;
     }
 
     onMouseDown() {
         gamestate.isMouseDown = true;
-        raycaster.setFromCamera(mouse, this.camera);
-        const intersects = raycaster.intersectObjects(this.cards.mesh.children);
+        let intersects = raycaster.intersectObjects(this.cards.mesh.children);
         gamestate.activeCard = intersects[0] && intersects[0].object.userData.friendly ? intersects[0].object : null;
+
+        intersects = raycaster.intersectObjects(this.env.mesh.children);
+        if (intersects[0] && intersects[0].object.name === 'shuffle_button') this._shuffleRemainingCards();
     }
 
     onMouseUp() {

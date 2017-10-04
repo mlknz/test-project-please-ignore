@@ -16,9 +16,9 @@ const sceneDescription = {
             path: 'assets/textures/card.png'
         },
         {
-            name: 'unknownCardTex',
+            name: 'endButtonTex',
             type: 'texture',
-            path: 'assets/textures/unknown_card.png'
+            path: 'assets/textures/end_button.png'
         },
         {
             name: 'card0Tex',

@@ -21,6 +21,7 @@ class Tracks {
         for (let i = 0; i < 3; ++i) {
             const track = this._createTrack();
             track.position.x = i * 0.15 - 0.15;
+            track.position.y = 0.1;
             track.userData.index = i;
             this.mesh.add(track);
         }

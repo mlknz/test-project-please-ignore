@@ -7,13 +7,6 @@ const p = [
     [-0.225 + 0.45, -0.375]
 ];
 
-const e = [
-    [-0.225, 0.375],
-    [-0.225 + 0.15, 0.375],
-    [-0.225 + 0.3, 0.375],
-    [-0.225 + 0.45, 0.375]
-];
-
 class Cards {
     constructor(assets) {
         this.mesh = new THREE.Object3D();
@@ -28,16 +21,6 @@ class Cards {
             card.userData.initPosX = card.position.x;
             card.userData.initPosY = card.position.y;
             card.position.z = 2;
-            this.mesh.add(card);
-        }
-
-        for (let i = 0; i < e.length; ++i) { // enemy
-            const card = this._createCard(assets.textures.unknownCardTex);
-            card.position.x = e[i][0];
-            card.position.y = e[i][1];
-            card.position.z = 1.5;
-
-            card.userData.friendly = false;
             this.mesh.add(card);
         }
 
@@ -60,9 +43,9 @@ class Cards {
         return mesh;
     }
 
-    updatePlayerCard(index, info) { // only friendly
+    updatePlayerCard(index, info) {
         this.mesh.children.forEach(cardMesh => {
-            if (cardMesh.userData.friendly && cardMesh.userData.index === index) {
+            if (cardMesh.userData.index === index) {
                 for (let i = cardMesh.children.length - 1; i >= 0; --i) {
                     cardMesh.remove(cardMesh.children[i]);
                 }
@@ -73,9 +56,9 @@ class Cards {
         });
     }
 
-    hideCard(isFriendly, index) {
+    hideCard(index) {
         this.mesh.children.forEach(cardMesh => {
-            if (cardMesh.userData.friendly === isFriendly && cardMesh.userData.index === index) {
+            if (cardMesh.userData.index === index) {
                 cardMesh.visible = false;
             }
         });
