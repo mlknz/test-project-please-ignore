@@ -7,6 +7,7 @@ import Env from './prefabs/env.js';
 import Tracks from './prefabs/tracks.js';
 import Towers from './prefabs/towers.js';
 import Cards from './prefabs/cards.js';
+import {generateCard} from './model/card.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -40,17 +41,31 @@ class AppViewer {
         this.controls.resetCameraOrbit();
         this.controls.setEnabled(false);
 
+        gamestate.phasesSeq = [
+            gamestate.phases.PLAYER_ATTACK,
+            gamestate.phases.ENEMY_DEFENCE,
+            gamestate.phases.APPLY,
+            gamestate.phases.RESET,
+            gamestate.phases.ENEMY_ATTACK,
+            gamestate.phases.PLAYER_DEFENCE,
+            gamestate.phases.APPLY,
+            gamestate.phases.RESET
+        ];
+        gamestate.activePhaseIndex = 0;
+        gamestate.activePhase = gamestate.phasesSeq[gamestate.activePhaseIndex];
+
         this.env = new Env(this.sceneManager.assetsLoader.assets);
         this.sceneManager.scene.add(this.env);
 
         this.tracks = new Tracks(this.sceneManager.assetsLoader.assets);
-        this.sceneManager.scene.add(this.tracks);
+        this.sceneManager.scene.add(this.tracks.mesh);
 
         this.towers = new Towers(this.sceneManager.assetsLoader.assets);
         this.sceneManager.scene.add(this.towers);
 
         this.cards = new Cards(this.sceneManager.assetsLoader.assets);
-        this.sceneManager.scene.add(this.cards);
+        this.sceneManager.scene.add(this.cards.mesh);
+        this._giveCardsToPlayer();
     }
 
     update(dt) {
@@ -59,12 +74,12 @@ class AppViewer {
         config.time += dt;
 
         this.controls.update(dt);
-        if (gamestate.activeCard) {
+        if (this._playerActive() && gamestate.activeCard) {
             gamestate.activeCard.position.x = mouse.x * aspectRatio * 0.5;
             gamestate.activeCard.position.y = mouse.y * 0.5;
 
             raycaster.setFromCamera(mouse, this.camera);
-            const intersects = raycaster.intersectObjects(this.tracks.children);
+            const intersects = raycaster.intersectObjects(this.tracks.mesh.children);
             const obj = intersects[0] ? intersects[0].object : null;
             if (obj) {
                 if (gamestate.activeTrack) {
@@ -88,10 +103,35 @@ class AppViewer {
         this.renderer.render(this.sceneManager.scene, this.camera);
     }
 
+    nextPhase() {
+
+    }
+
+    _playerActive() {
+        return gamestate.activePhase === gamestate.phases.PLAYER_ATTACK || gamestate.activePhase === gamestate.phases.PLAYER_DEFENCE;
+    }
+
+    _giveCardsToPlayer() {
+        for (let i = 0; i < 4; ++i) {
+            if (!gamestate.playerHand[i]) this._giveCardToPlayer(i);
+        }
+    }
+    _giveCardToPlayer(index) {
+        gamestate.playerHand[index] = generateCard();
+        this.cards.updatePlayerCard(index, gamestate.playerHand[index]);
+    }
+
+    playCard(isFriendly, cardIndex, trackIndex) {
+        this.cards.hideCard(isFriendly, cardIndex);
+        const hand = isFriendly ? gamestate.playerHand : gamestate.enemyHand;
+        this.tracks.spawnUnitOnTrack(isFriendly, trackIndex, hand[cardIndex]);
+        // todo: tower dmg
+    }
+
     onMouseDown() {
         gamestate.isMouseDown = true;
         raycaster.setFromCamera(mouse, this.camera);
-        const intersects = raycaster.intersectObjects(this.cards.children);
+        const intersects = raycaster.intersectObjects(this.cards.mesh.children);
         gamestate.activeCard = intersects[0] && intersects[0].object.userData.friendly ? intersects[0].object : null;
     }
 
@@ -103,6 +143,10 @@ class AppViewer {
         }
         if (gamestate.activeTrack) {
             gamestate.activeTrack.material.color = gamestate.activeTrack.userData.defaultColor;
+        }
+
+        if (gamestate.activeCard && gamestate.activeTrack && !this.tracks.hasUnitOnTrack(true, gamestate.activeTrack.userData.index)) {
+            this.playCard(true, gamestate.activeCard.userData.index, gamestate.activeTrack.userData.index);
         }
         gamestate.activeCard = undefined;
     }
