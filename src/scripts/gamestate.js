@@ -13,6 +13,7 @@ const gamestate = {
     phasesSeq: [],
     activePhaseIndex: 0,
     activePhase: null,
+    usedShuffleThisTurn: false,
     playerHand: {
         0: null,
         1: null,

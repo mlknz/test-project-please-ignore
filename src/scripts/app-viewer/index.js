@@ -51,7 +51,7 @@ class AppViewer {
             gamestate.phases.APPLY,
             gamestate.phases.RESET
         ];
-        gamestate.activePhaseIndex = 0;
+        gamestate.activePhaseIndex = 6;
         gamestate.activePhase = gamestate.phasesSeq[gamestate.activePhaseIndex];
 
         this.env = new Env(this.sceneManager.assetsLoader.assets);
@@ -65,8 +65,8 @@ class AppViewer {
 
         this.cards = new Cards(this.sceneManager.assetsLoader.assets);
         this.sceneManager.scene.add(this.cards.mesh);
-        this._giveCardsToPlayer(true);
-        this._giveCardsToPlayer(false);
+
+        this.nextPhase();
     }
 
     update(dt) {
@@ -115,10 +115,6 @@ class AppViewer {
         this.renderer.render(this.sceneManager.scene, this.camera);
     }
 
-    nextPhase() {
-
-    }
-
     _playerActive() {
         return gamestate.activePhase === gamestate.phases.PLAYER_ATTACK || gamestate.activePhase === gamestate.phases.PLAYER_DEFENCE;
     }
@@ -150,13 +146,65 @@ class AppViewer {
         hand[cardIndex] = null;
     }
 
+
+    nextPhase() {
+        gamestate.activePhaseIndex += 1;
+        if (gamestate.activePhaseIndex === gamestate.phasesSeq.length) gamestate.activePhaseIndex = 0;
+
+        gamestate.activePhase = gamestate.phasesSeq[gamestate.activePhaseIndex];
+
+        if (gamestate.activePhase === gamestate.phases.ENEMY_ATTACK || gamestate.activePhase === gamestate.phases.ENEMY_DEFENCE) {
+            this._startEnemyTurn();
+        } else if (gamestate.activePhase === gamestate.phases.RESET) {
+            this.tracks.clearTracks();
+            this._giveCardsToPlayer(true);
+            this._giveCardsToPlayer(false);
+            // setTimeout(() => {this.nextPhase();}, 300);
+            this.nextPhase();
+        } else if (gamestate.activePhase === gamestate.phases.APPLY) {
+            this._applyUnitsDamage();
+        } else if (this._playerActive()) {
+            gamestate.usedShuffleThisTurn = false;
+        }
+    }
+
+    _startEnemyTurn() {
+        for (let i = 0; i < 3; ++i) {
+            setTimeout(() => {
+                this.playCard(false, i, i);
+            }, 500 * (i + 1));
+        }
+        setTimeout(() => { this.nextPhase(); }, 2000);
+    }
+
+    _applyUnitsDamage() {
+        for (let i = 0; i < 3; ++i) {
+            this._applyUnitsDamageOnTrack(i);
+        }
+        setTimeout(() => {
+            this.nextPhase();
+        }, 1200);
+    }
+    _applyUnitsDamageOnTrack(trackIndex) {
+        const result = this.tracks.applyDamageOnTrack(trackIndex);
+        // todo: towers damage
+    }
+
     onMouseDown() {
         gamestate.isMouseDown = true;
         let intersects = raycaster.intersectObjects(this.cards.mesh.children);
         gamestate.activeCard = intersects[0] && intersects[0].object.userData.friendly ? intersects[0].object : null;
 
         intersects = raycaster.intersectObjects(this.env.mesh.children);
-        if (intersects[0] && intersects[0].object.name === 'shuffle_button') this._shuffleRemainingCards();
+        if (intersects[0] && intersects[0].object.name === 'shuffle_button' && this._playerActive() && !gamestate.usedShuffleThisTurn) {
+            gamestate.usedShuffleThisTurn = true;
+            // todo: make button inactive
+            this._shuffleRemainingCards();
+        }
+        if (intersects[0] && intersects[0].object.name === 'end_button' && this._playerActive()) {
+            // todo: make button inactive
+            this.nextPhase();
+        }
     }
 
     onMouseUp() {

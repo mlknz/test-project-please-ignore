@@ -7,7 +7,6 @@ class Env {
         this.mesh.add(this._createBack(assets.textures.backTex));
         this.mesh.add(this._createShuffleButton(assets.textures.randomButtonTex));
         this.mesh.add(this._createEndButton(assets.textures.endButtonTex));
-
     }
 
     _createBack(tex) {

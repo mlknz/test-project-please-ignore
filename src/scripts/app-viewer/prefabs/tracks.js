@@ -40,6 +40,14 @@ class Tracks {
         return mesh;
     }
 
+    clearTracks() {
+        this.mesh.children.forEach(track => {
+            for (let i = track.children.length - 1; i >= 0; --i) {
+                track.remove(track.children[i]);
+            }
+        });
+    }
+
     _createUnitSoldier(color) {
         const texName = color === 'red' ? 'redUnitTex' : 'blueUnitTex';
         const tex = this._assets.textures[texName];
@@ -64,17 +72,61 @@ class Tracks {
         const track = this.mesh.children[trackIndex];
         const unit = this._createUnit(cardInfo.damage, cardInfo.color);
         unit.userData.friendly = isFriendly;
+        const damageSign = cardInfo.color === 'red' ? 1 : -1; // todo: remove color field
+        unit.userData.damage = cardInfo.damage * damageSign;
 
         unit.position.y = unit.userData.friendly ? -0.07 : 0.07;
         track.add(unit);
     }
 
     hasUnitOnTrack(isFriendly, trackIndex) {
+        return this.getUnitOnTrack(isFriendly, trackIndex) ? true : false;
+    }
+
+    getUnitOnTrack(isFriendly, trackIndex) {
         const track = this.mesh.children[trackIndex];
         for (let i = 0; i < track.children.length; ++i) {
-            if (track.children[i].userData.friendly === isFriendly) return true;
+            if (track.children[i].userData.friendly === isFriendly) return track.children[i];
         }
-        return false;
+        return null;
+    }
+
+    _spawnResolvedUnit(isFriendly, trackIndex, damage) {
+        const color = damage > 0 ? 'red' : 'blue';
+        const unit = this._createUnit(Math.abs(damage), color);
+        unit.userData.friendly = isFriendly;
+        unit.position.y = unit.userData.friendly ? 0.09 : -0.09;
+        this.mesh.children[trackIndex].add(unit);
+    }
+
+    applyDamageOnTrack(trackIndex) {
+        const friendly = this.getUnitOnTrack(true, trackIndex);
+        const enemy = this.getUnitOnTrack(false, trackIndex);
+
+        const playerDamage = friendly ? friendly.userData.damage : 0;
+        const enemyDamage = enemy ? enemy.userData.damage : 0;
+
+        if (friendly) friendly.parent.remove(friendly);
+        if (enemy) enemy.parent.remove(enemy);
+
+        let result = null;
+        const diff = Math.abs(playerDamage) - Math.abs(enemyDamage);
+        if (diff !== 0) {
+            if (diff > 0) {
+                this._spawnResolvedUnit(true, trackIndex, diff * Math.sign(playerDamage));
+                result = {
+                    playerWon: true,
+                    damage: playerDamage
+                };
+            } else {
+                this._spawnResolvedUnit(false, trackIndex, - diff * Math.sign(enemyDamage));
+                result = {
+                    playerWon: false,
+                    damage: enemyDamage
+                };
+            }
+        }
+        return result;
     }
 
 }
