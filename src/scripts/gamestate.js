@@ -25,7 +25,16 @@ const gamestate = {
         1: null,
         2: null,
         3: null
-    }
+    },
+    maxT: 10,
+    playerAdditiveT: 0,
+    enemyAdditiveT: 0,
+    playerT: 0,
+    enemyY: 0,
+    towersT: [
+        [0, 0, 0], // player
+        [0, 0, 0] // enemy
+    ]
 };
 
 export default gamestate;

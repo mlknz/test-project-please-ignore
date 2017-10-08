@@ -10,7 +10,7 @@ class Env {
     }
 
     _createBack(tex) {
-        const geom = new THREE.PlaneBufferGeometry(0.6, 1);
+        const geom = new THREE.PlaneBufferGeometry(0.666, 1);
         const mat = new THREE.MeshBasicMaterial({map: tex});
 
         const mesh = new THREE.Mesh(geom, mat);
@@ -18,27 +18,27 @@ class Env {
     }
 
     _createShuffleButton(tex) {
-        const geom = new THREE.PlaneBufferGeometry(0.05, 0.05);
+        const geom = new THREE.PlaneBufferGeometry(0.16, 0.05);
         const mat = new THREE.MeshBasicMaterial({map: tex, transparent: true});
         this.shuffleButton = new THREE.Mesh(geom, mat);
         this.shuffleButton.name = 'shuffle_button';
         this.shuffleButton.userData.defaultColor = new THREE.Color(0xffffff);
         this.shuffleButton.userData.selectedColor = new THREE.Color(0xcc0000);
 
-        this.shuffleButton.position.x = -0.26;
-        this.shuffleButton.position.y = -0.2;
+        this.shuffleButton.position.x = -0.23;
+        this.shuffleButton.position.y = -0.27;
         this.shuffleButton.position.z = 1.8;
         return this.shuffleButton;
     }
 
     _createEndButton(tex) {
-        const geom = new THREE.PlaneBufferGeometry(0.1, 0.05);
+        const geom = new THREE.PlaneBufferGeometry(0.16, 0.05);
         const mat = new THREE.MeshBasicMaterial({map: tex, transparent: true});
         this.endButton = new THREE.Mesh(geom, mat);
         this.endButton.name = 'end_button';
 
-        this.endButton.position.x = 0.2;
-        this.endButton.position.y = -0.2;
+        this.endButton.position.x = 0.23;
+        this.endButton.position.y = -0.27;
         this.endButton.position.z = 1.8;
 
         return this.endButton;

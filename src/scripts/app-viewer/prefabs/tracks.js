@@ -11,7 +11,9 @@ const p = [
     [[-g, -f], [0, -f], [g, -f], [-f, f], [f, f]],
     [[-g, -f], [0, -f], [g, -f], [-g, f], [0, f], [g, f]],
     [[-g, -g], [0, -g], [g, -g], [-g, 0], [0, 0], [g, 0], [0, g]],
-    [[-g, -g], [0, -g], [g, -g], [-g, 0], [0, 0], [g, 0], [-f, g], [f, g]]
+    [[-g, -g], [0, -g], [g, -g], [-g, 0], [0, 0], [g, 0], [-f, g], [f, g]],
+    [[-g, -g], [0, -g], [g, -g], [-g, 0], [0, 0], [g, 0], [-g, g], [0, g], [g, g]],
+    [[-g, -g], [0, -g], [g, -g], [-g, 0], [0, 0], [g, 0], [-g, g], [0, g], [g, g], [0, 2 * g]]
 ];
 
 class Tracks {
@@ -19,8 +21,8 @@ class Tracks {
         this.mesh = new THREE.Object3D();
         this.mesh.name = 'tracks_root';
         for (let i = 0; i < 3; ++i) {
-            const track = this._createTrack();
-            track.position.x = i * 0.15 - 0.15;
+            const track = this._createTrack(assets.textures.trackTex);
+            track.position.x = i * 0.19 - 0.19;
             track.position.y = 0.1;
             track.userData.index = i;
             this.mesh.add(track);
@@ -29,12 +31,12 @@ class Tracks {
         this._assets = assets;
     }
 
-    _createTrack() {
-        const geom = new THREE.PlaneBufferGeometry(0.13, 0.5);
-        const mat = new THREE.MeshBasicMaterial({color: 0x773355});
+    _createTrack(tex) {
+        const geom = new THREE.PlaneBufferGeometry(0.175, 0.5);
+        const mat = new THREE.MeshBasicMaterial({map: tex});
 
         const mesh = new THREE.Mesh(geom, mat);
-        mesh.userData.defaultColor = new THREE.Color(0x773355);
+        mesh.userData.defaultColor = new THREE.Color(0xffffff);
         mesh.userData.selectedColor = new THREE.Color(0xcc5555);
         mesh.position.z = 0.1;
         return mesh;

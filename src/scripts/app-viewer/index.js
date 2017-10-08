@@ -13,6 +13,10 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let aspectRatio;
 
+const clampT = (v) => {
+    return Math.min(gamestate.maxT, Math.max(-gamestate.maxT, v));
+};
+
 class AppViewer {
     constructor(renderer) {
         this.renderer = renderer;
@@ -61,7 +65,7 @@ class AppViewer {
         this.sceneManager.scene.add(this.tracks.mesh);
 
         this.towers = new Towers(this.sceneManager.assetsLoader.assets);
-        this.sceneManager.scene.add(this.towers);
+        this.sceneManager.scene.add(this.towers.mesh);
 
         this.cards = new Cards(this.sceneManager.assetsLoader.assets);
         this.sceneManager.scene.add(this.cards.mesh);
@@ -131,7 +135,7 @@ class AppViewer {
         if (isFriendly) this.cards.updatePlayerCard(index, hand[index]);
     }
 
-    _shuffleRemainingCards() { // todo: once per turn
+    _shuffleRemainingCards() {
         const hand = gamestate.playerHand;
         for (let i = 0; i < 4; ++i) {
             if (hand[i]) this._giveCardToPlayer(true, i);
@@ -142,10 +146,12 @@ class AppViewer {
         if (isFriendly) this.cards.hideCard(cardIndex);
         const hand = isFriendly ? gamestate.playerHand : gamestate.enemyHand;
         this.tracks.spawnUnitOnTrack(isFriendly, trackIndex, hand[cardIndex]);
-        // todo: tower dmg
+        const ind = isFriendly ? 0 : 1;
+        gamestate.towersT[ind][trackIndex] = clampT(gamestate.towersT[ind][trackIndex] + hand[cardIndex].price);
+        this.towers.setTowerTemperature(isFriendly, trackIndex, gamestate.towersT[ind][trackIndex]);
+        this.updateTemperatures();
         hand[cardIndex] = null;
     }
-
 
     nextPhase() {
         gamestate.activePhaseIndex += 1;
@@ -163,6 +169,10 @@ class AppViewer {
             this.nextPhase();
         } else if (gamestate.activePhase === gamestate.phases.APPLY) {
             this._applyUnitsDamage();
+            setTimeout(() => {
+                this._checkForTowersReset();
+                if (!this._checkWinLose()) this.nextPhase();
+            }, 1200);
         } else if (this._playerActive()) {
             gamestate.usedShuffleThisTurn = false;
         }
@@ -181,13 +191,67 @@ class AppViewer {
         for (let i = 0; i < 3; ++i) {
             this._applyUnitsDamageOnTrack(i);
         }
-        setTimeout(() => {
-            this.nextPhase();
-        }, 1200);
     }
     _applyUnitsDamageOnTrack(trackIndex) {
         const result = this.tracks.applyDamageOnTrack(trackIndex);
-        // todo: towers damage
+        if (!result) return;
+        const ind = result.playerWon ? 1 : 0;
+        gamestate.towersT[ind][trackIndex] = clampT(gamestate.towersT[ind][trackIndex] + result.damage);
+        this.towers.setTowerTemperature(!result.playerWon, trackIndex, gamestate.towersT[ind][trackIndex]);
+        this.towers.updatePlayerTemperatures();
+    }
+    _checkForTowersReset() {
+        for (let i = 0; i < 3; ++i) {
+            if (Math.abs(gamestate.towersT[0][i]) >= gamestate.maxT) {
+                gamestate.playerAdditiveT += Math.round(gamestate.towersT[0][i]);
+                gamestate.towersT[0][i] = 0;
+                this.towers.setTowerTemperature(true, i, gamestate.towersT[0][i]);
+            }
+            if (Math.abs(gamestate.towersT[1][i]) >= gamestate.maxT) {
+                gamestate.enemyAdditiveT += Math.round(gamestate.towersT[1][i]);
+                gamestate.towersT[1][i] = 0;
+                this.towers.setTowerTemperature(false, i, gamestate.towersT[1][i]);
+            }
+        }
+        this.updateTemperatures();
+    }
+
+    _createGameOverScreen(text) { // todo: use css
+        const div = document.createElement('div');
+        div.style.position = 'absolute';
+        div.style.backgroundColor = 'white';
+        div.style.opacity = 0.8;
+        div.style.left = 0;
+        div.style.right = 0;
+        div.style.top = 0;
+        div.style.bottom = 0;
+        div.style.fontSize = '140px';
+        div.style.textAlign = 'center';
+        const textNode = document.createTextNode(text);
+        div.appendChild(textNode);
+        document.body.appendChild(div);
+    }
+
+    _checkWinLose() {
+        const isWin = Math.abs(gamestate.enemyT) >= gamestate.maxT;
+        const isLose = Math.abs(gamestate.playerT) >= gamestate.maxT;
+
+        if (isWin) {
+            this._createGameOverScreen('WIN!');
+            return true;
+        } else if (isLose) {
+            this._createGameOverScreen('LOSE!');
+            return true;
+        }
+        return false;
+    }
+
+    updateTemperatures() {
+        const t = gamestate.towersT;
+        gamestate.playerT = clampT((t[0][0] + t[0][1] + t[0][2] + gamestate.playerAdditiveT) / 3);
+        gamestate.enemyT = clampT((t[1][0] + t[1][1] + t[1][2] + gamestate.enemyAdditiveT) / 3);
+
+        this.towers.updatePlayerTemperatures();
     }
 
     onMouseDown() {

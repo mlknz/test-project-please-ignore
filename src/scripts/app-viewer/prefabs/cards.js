@@ -1,10 +1,10 @@
 // import config from '../../config.js';
 
 const p = [
-    [-0.225, -0.375],
-    [-0.225 + 0.15, -0.375],
-    [-0.225 + 0.3, -0.375],
-    [-0.225 + 0.45, -0.375]
+    [-0.21, -0.395],
+    [-0.21 + 0.14, -0.395],
+    [-0.21 + 0.28, -0.395],
+    [-0.21 + 0.42, -0.395]
 ];
 
 class Cards {
@@ -12,7 +12,7 @@ class Cards {
         this.mesh = new THREE.Object3D();
         this.mesh.name = 'cards_root';
         for (let i = 0; i < p.length; ++i) { // friendly
-            const card = this._createCard(assets.textures.cardTex);
+            const card = this._createCard(assets.textures.cardBackTex);
             card.position.x = p[i][0];
             card.position.y = p[i][1];
 
@@ -28,7 +28,7 @@ class Cards {
     }
 
     _createCard(tex) {
-        const geom = new THREE.PlaneBufferGeometry(0.13, 0.2);
+        const geom = new THREE.PlaneBufferGeometry(0.124, 0.17);
         const mat = new THREE.MeshBasicMaterial({map: tex, transparent: true});
 
         const mesh = new THREE.Mesh(geom, mat);
