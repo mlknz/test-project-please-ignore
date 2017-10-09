@@ -203,14 +203,14 @@ class AppViewer {
     _checkForTowersReset() {
         for (let i = 0; i < 3; ++i) {
             if (Math.abs(gamestate.towersT[0][i]) >= gamestate.maxT) {
-                gamestate.playerAdditiveT += Math.round(gamestate.towersT[0][i]);
+                gamestate.playerAdditiveT += Math.round(gamestate.towersT[0][i] / 2);
                 gamestate.towersT[0][i] = 0;
-                this.towers.setTowerTemperature(true, i, gamestate.towersT[0][i]);
+                this.towers.setTowerTemperature(true, i, 0);
             }
             if (Math.abs(gamestate.towersT[1][i]) >= gamestate.maxT) {
-                gamestate.enemyAdditiveT += Math.round(gamestate.towersT[1][i]);
+                gamestate.enemyAdditiveT += Math.round(gamestate.towersT[1][i] / 2);
                 gamestate.towersT[1][i] = 0;
-                this.towers.setTowerTemperature(false, i, gamestate.towersT[1][i]);
+                this.towers.setTowerTemperature(false, i, 0);
             }
         }
         this.updateTemperatures();
@@ -248,8 +248,8 @@ class AppViewer {
 
     updateTemperatures() {
         const t = gamestate.towersT;
-        gamestate.playerT = clampT((t[0][0] + t[0][1] + t[0][2] + gamestate.playerAdditiveT) / 3);
-        gamestate.enemyT = clampT((t[1][0] + t[1][1] + t[1][2] + gamestate.enemyAdditiveT) / 3);
+        gamestate.playerT = clampT((t[0][0] + t[0][1] + t[0][2]) / 3 + gamestate.playerAdditiveT);
+        gamestate.enemyT = clampT((t[1][0] + t[1][1] + t[1][2]) / 3 + gamestate.enemyAdditiveT);
 
         this.towers.updatePlayerTemperatures();
     }
