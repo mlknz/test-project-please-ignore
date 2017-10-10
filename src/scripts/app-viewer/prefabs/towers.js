@@ -1,4 +1,5 @@
 import gamestate from '../../gamestate.js';
+import config from '../../config.js';
 
 const p = [
     [-0.19, -0.13],
@@ -75,12 +76,12 @@ class Towers {
 
     setTowerTemperature(isFriendly, index, value) {
         const handler = isFriendly ? this._friendlyTowersT[index] : this._enemyTowersT[index];
-        handler.position.x = handler.userData.pos.x + (value / gamestate.maxT) * towerTermometerWidth / 2;
+        handler.position.x = handler.userData.pos.x + (value / config.game.maxT) * towerTermometerWidth / 2;
     }
 
     updatePlayerTemperatures() {
-        this._friendlyT.position.x = (gamestate.playerT / gamestate.maxT) * termometerWidth / 2;
-        this._enemyT.position.x = (gamestate.enemyT / gamestate.maxT) * termometerWidth / 2;
+        this._friendlyT.position.x = (gamestate.playerT / config.game.maxT) * termometerWidth / 2;
+        this._enemyT.position.x = (gamestate.enemyT / config.game.maxT) * termometerWidth / 2;
     }
 
     _createTower(tex, termometerTex) {

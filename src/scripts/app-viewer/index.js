@@ -14,7 +14,7 @@ const mouse = new THREE.Vector2();
 let aspectRatio;
 
 const clampT = (v) => {
-    return Math.min(gamestate.maxT, Math.max(-gamestate.maxT, v));
+    return Math.min(config.game.maxT, Math.max(-config.game.maxT, v));
 };
 
 class AppViewer {
@@ -147,7 +147,7 @@ class AppViewer {
         const hand = isFriendly ? gamestate.playerHand : gamestate.enemyHand;
         this.tracks.spawnUnitOnTrack(isFriendly, trackIndex, hand[cardIndex]);
         const ind = isFriendly ? 0 : 1;
-        gamestate.towersT[ind][trackIndex] = clampT(gamestate.towersT[ind][trackIndex] + hand[cardIndex].price);
+        gamestate.towersT[ind][trackIndex] = gamestate.towersT[ind][trackIndex] + hand[cardIndex].price;
         this.towers.setTowerTemperature(isFriendly, trackIndex, gamestate.towersT[ind][trackIndex]);
         this.updateTemperatures();
         hand[cardIndex] = null;
@@ -170,7 +170,7 @@ class AppViewer {
         } else if (gamestate.activePhase === gamestate.phases.APPLY) {
             this._applyUnitsDamage();
             setTimeout(() => {
-                this._checkForTowersReset();
+                this._applyTowersBurn();
                 if (!this._checkWinLose()) this.nextPhase();
             }, 1200);
         } else if (this._playerActive()) {
@@ -196,22 +196,22 @@ class AppViewer {
         const result = this.tracks.applyDamageOnTrack(trackIndex);
         if (!result) return;
         const ind = result.playerWon ? 1 : 0;
-        gamestate.towersT[ind][trackIndex] = clampT(gamestate.towersT[ind][trackIndex] + result.damage);
+        gamestate.towersT[ind][trackIndex] = gamestate.towersT[ind][trackIndex] + result.damage;
         this.towers.setTowerTemperature(!result.playerWon, trackIndex, gamestate.towersT[ind][trackIndex]);
         this.towers.updatePlayerTemperatures();
     }
-    _checkForTowersReset() {
+    _applyTowersBurn() {
         for (let i = 0; i < 3; ++i) {
-            if (Math.abs(gamestate.towersT[0][i]) >= gamestate.maxT) {
-                gamestate.playerAdditiveT += Math.round(gamestate.towersT[0][i] / 2);
-                gamestate.towersT[0][i] = 0;
-                this.towers.setTowerTemperature(true, i, 0);
+            const p = Math.abs(gamestate.towersT[0][i]);
+            const e = Math.abs(gamestate.towersT[1][i]);
+            let pBurn = 0;
+            let eBurn = 0;
+            for (let j = 0; j < config.game.burn.length; ++j) {
+                if (p > config.game.burn[j].t) pBurn = config.game.burn[j].damage * Math.sign(gamestate.towersT[0][i]);
+                if (e > config.game.burn[j].t) eBurn = config.game.burn[j].damage * Math.sign(gamestate.towersT[1][i]);
             }
-            if (Math.abs(gamestate.towersT[1][i]) >= gamestate.maxT) {
-                gamestate.enemyAdditiveT += Math.round(gamestate.towersT[1][i] / 2);
-                gamestate.towersT[1][i] = 0;
-                this.towers.setTowerTemperature(false, i, 0);
-            }
+            gamestate.playerAdditiveT += pBurn;
+            gamestate.enemyAdditiveT += eBurn;
         }
         this.updateTemperatures();
     }
@@ -233,8 +233,8 @@ class AppViewer {
     }
 
     _checkWinLose() {
-        const isWin = Math.abs(gamestate.enemyT) >= gamestate.maxT;
-        const isLose = Math.abs(gamestate.playerT) >= gamestate.maxT;
+        const isWin = Math.abs(gamestate.enemyT) >= config.game.maxT;
+        const isLose = Math.abs(gamestate.playerT) >= config.game.maxT;
 
         if (isWin) {
             this._createGameOverScreen('WIN!');

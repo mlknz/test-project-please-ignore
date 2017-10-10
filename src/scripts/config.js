@@ -26,6 +26,16 @@ const config = {
         minDistance: 1,
         maxDistance: 500,
         rotateSpeed: 0.18
+    },
+
+    game: {
+        maxT: 10,
+        burn: [
+            {'t': 10, 'damage': 2},
+            {'t': 15, 'damage': 3},
+            {'t': 20, 'damage': 4},
+            {'t': 25, 'damage': 5}
+        ]
     }
 };
 

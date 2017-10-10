@@ -26,7 +26,6 @@ const gamestate = {
         2: null,
         3: null
     },
-    maxT: 10,
     playerAdditiveT: 0,
     enemyAdditiveT: 0,
     playerT: 0,
