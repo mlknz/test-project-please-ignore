@@ -115,16 +115,18 @@ class Tracks {
         const diff = Math.abs(playerDamage) - Math.abs(enemyDamage);
         if (diff !== 0) {
             if (diff > 0) {
-                this._spawnResolvedUnit(true, trackIndex, diff * Math.sign(playerDamage));
+                const damage = diff * Math.sign(playerDamage);
+                this._spawnResolvedUnit(true, trackIndex, damage);
                 result = {
                     playerWon: true,
-                    damage: playerDamage
+                    damage
                 };
             } else {
-                this._spawnResolvedUnit(false, trackIndex, - diff * Math.sign(enemyDamage));
+                const damage = -diff * Math.sign(enemyDamage);
+                this._spawnResolvedUnit(false, trackIndex, damage);
                 result = {
                     playerWon: false,
-                    damage: enemyDamage
+                    damage
                 };
             }
         }
