@@ -1,5 +1,6 @@
 import gamestate from '../../gamestate.js';
 import config from '../../config.js';
+import NumberVisual from './numberVisual.js';
 
 const p = [
     [-0.19, -0.13],
@@ -14,9 +15,7 @@ const e = [
 ];
 
 const termometerWidth = 0.26;
-const towerTermometerWidth = 0.14;
 const termometerHeight = 0.014;
-const towerTermometerOffset = -0.036;
 
 class Towers {
     constructor(assets) {
@@ -28,27 +27,23 @@ class Towers {
         this._enemyTowersT = [];
 
         for (let i = 0; i < p.length; ++i) { // friendly
-            const tower = this._createTower(assets.textures.towerFriendlyTex, assets.textures.castleProgressTex);
+            const tower = this._createTower(assets.textures.towerFriendlyTex);
             tower.position.x = p[i][0];
             tower.position.y = p[i][1];
             this.mesh.add(tower);
 
-            this._friendlyTowersT[i] = this._createTermometerHandler();
-            this._friendlyTowersT[i].userData.pos = new THREE.Vector3(tower.position.x, tower.position.y + towerTermometerOffset, 1.3);
-            this._friendlyTowersT[i].position.copy(this._friendlyTowersT[i].userData.pos);
-            this.mesh.add(this._friendlyTowersT[i]);
+            this._friendlyTowersT[i] = (new NumberVisual(this._assets)).setSize(0.1).setValue(0);
+            tower.add(this._friendlyTowersT[i].mesh);
         }
 
         for (let i = 0; i < e.length; ++i) { // enemy
-            const tower = this._createTower(assets.textures.towerEnemyTex, assets.textures.castleProgressTex);
+            const tower = this._createTower(assets.textures.towerEnemyTex);
             tower.position.x = e[i][0];
             tower.position.y = e[i][1];
             this.mesh.add(tower);
 
-            this._enemyTowersT[i] = this._createTermometerHandler();
-            this._enemyTowersT[i].userData.pos = new THREE.Vector3(tower.position.x, tower.position.y + towerTermometerOffset, 1.3);
-            this._enemyTowersT[i].position.copy(this._enemyTowersT[i].userData.pos);
-            this.mesh.add(this._enemyTowersT[i]);
+            this._enemyTowersT[i] = (new NumberVisual(this._assets)).setSize(0.1).setValue(0);
+            tower.add(this._enemyTowersT[i].mesh);
         }
 
         const friendlyCastle = this._createCastle(assets.textures.castleFriendlyTex);
@@ -75,8 +70,8 @@ class Towers {
     }
 
     setTowerTemperature(isFriendly, index, value) {
-        const handler = isFriendly ? this._friendlyTowersT[index] : this._enemyTowersT[index];
-        handler.position.x = handler.userData.pos.x + (value / config.game.maxT) * towerTermometerWidth / 2;
+        const numberVisual = isFriendly ? this._friendlyTowersT[index] : this._enemyTowersT[index];
+        numberVisual.setValue(value);
     }
 
     updatePlayerTemperatures() {
@@ -84,17 +79,12 @@ class Towers {
         this._enemyT.position.x = (gamestate.enemyT / config.game.maxT) * termometerWidth / 2;
     }
 
-    _createTower(tex, termometerTex) {
+    _createTower(tex) {
         const mesh = new THREE.Mesh(
             new THREE.PlaneBufferGeometry(0.16, 0.16),
             new THREE.MeshBasicMaterial({map: tex, transparent: true})
         );
         mesh.position.z = 1;
-
-        const termometer = this._createTermometer(termometerTex, towerTermometerWidth, termometerHeight);
-        termometer.position.y = towerTermometerOffset;
-
-        mesh.add(termometer);
 
         return mesh;
     }

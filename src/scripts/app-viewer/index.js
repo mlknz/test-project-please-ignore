@@ -7,6 +7,7 @@ import Env from './prefabs/env.js';
 import Tracks from './prefabs/tracks.js';
 import Towers from './prefabs/towers.js';
 import Cards from './prefabs/cards.js';
+import BotLogic from './botLogic.js';
 import {generateCard} from './model/card.js';
 
 const raycaster = new THREE.Raycaster();
@@ -69,6 +70,8 @@ class AppViewer {
 
         this.cards = new Cards(this.sceneManager.assetsLoader.assets);
         this.sceneManager.scene.add(this.cards.mesh);
+
+        this.botLogic = new BotLogic(this);
 
         this.nextPhase();
     }
@@ -135,10 +138,10 @@ class AppViewer {
         if (isFriendly) this.cards.updatePlayerCard(index, hand[index]);
     }
 
-    _shuffleRemainingCards() {
-        const hand = gamestate.playerHand;
+    shuffleRemainingCards(isFriendly) {
+        const hand = isFriendly ? gamestate.playerHand : gamestate.enemyHand;
         for (let i = 0; i < 4; ++i) {
-            if (hand[i]) this._giveCardToPlayer(true, i);
+            if (hand[i]) this._giveCardToPlayer(isFriendly, i);
         }
     }
 
@@ -160,7 +163,7 @@ class AppViewer {
         gamestate.activePhase = gamestate.phasesSeq[gamestate.activePhaseIndex];
 
         if (gamestate.activePhase === gamestate.phases.ENEMY_ATTACK || gamestate.activePhase === gamestate.phases.ENEMY_DEFENCE) {
-            this._startEnemyTurn();
+            this.botLogic.makeTurn(gamestate.activePhase === gamestate.phases.ENEMY_ATTACK);
         } else if (gamestate.activePhase === gamestate.phases.RESET) {
             this.tracks.clearTracks();
             this._giveCardsToPlayer(true);
@@ -176,15 +179,6 @@ class AppViewer {
         } else if (this._playerActive()) {
             gamestate.usedShuffleThisTurn = false;
         }
-    }
-
-    _startEnemyTurn() {
-        for (let i = 0; i < 3; ++i) {
-            setTimeout(() => {
-                this.playCard(false, i, i);
-            }, 500 * (i + 1));
-        }
-        setTimeout(() => { this.nextPhase(); }, 2000);
     }
 
     _applyUnitsDamage() {
@@ -263,7 +257,7 @@ class AppViewer {
         if (intersects[0] && intersects[0].object.name === 'shuffle_button' && this._playerActive() && !gamestate.usedShuffleThisTurn) {
             gamestate.usedShuffleThisTurn = true;
             // todo: make button inactive
-            this._shuffleRemainingCards();
+            this.shuffleRemainingCards(true);
         }
         if (intersects[0] && intersects[0].object.name === 'end_button' && this._playerActive()) {
             // todo: make button inactive

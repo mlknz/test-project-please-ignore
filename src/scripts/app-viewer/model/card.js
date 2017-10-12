@@ -1,4 +1,4 @@
-
+// todo: support sign at damage, remove color
 const cards = [
     {id: 0, color: 'red', damage: 2, price: 1, texName: 'cardRed2Tex'},
     {id: 1, color: 'red', damage: 4, price: 2, texName: 'cardRed4Tex'},

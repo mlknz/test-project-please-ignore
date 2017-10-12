@@ -11,6 +11,11 @@ const sceneDescription = {
             path: 'assets/textures/road.png'
         },
         {
+            name: 'numbersTex',
+            type: 'texture',
+            path: 'assets/textures/numbers.png'
+        },
+        {
             name: 'towerFriendlyTex',
             type: 'texture',
             path: 'assets/textures/tower_friendly.png'
