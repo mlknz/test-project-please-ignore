@@ -53,8 +53,6 @@ class AppViewer {
     }
 
     onSceneReady() {
-        this.sceneReady = true;
-
         gamestate.phasesSeq = [
             gamestate.phases.PLAYER_ATTACK,
             gamestate.phases.ENEMY_DEFENCE,
@@ -82,6 +80,7 @@ class AppViewer {
 
         this.botLogic = new BotLogic(this);
 
+        this.sceneReady = true;
         this.nextPhase();
     }
 
@@ -89,7 +88,7 @@ class AppViewer {
         if (!this.sceneReady) return;
 
         config.time += dt;
-
+        this.towers.update();
         this.renderer.render(this.sceneManager.scene, this.camera);
     }
 
@@ -167,6 +166,7 @@ class AppViewer {
         const ind = result.playerWon ? 1 : 0;
         gamestate.towersT[ind][trackIndex] = gamestate.towersT[ind][trackIndex] + result.damage;
         this.towers.setTowerTemperature(!result.playerWon, trackIndex, gamestate.towersT[ind][trackIndex]);
+        this.towers.showFadingDamage(!result.playerWon, trackIndex, result.damage);
         this.updateTemperatures();
     }
     _applyTowersBurn() {
@@ -331,8 +331,8 @@ class AppViewer {
     resize(width, height) {
         aspectRatio = width / height;
 
-        if (aspectRatio < 0.66) {
-            fitScreenMultHack = 0.66 / aspectRatio;
+        if (aspectRatio < 0.563) {
+            fitScreenMultHack = 0.563 / aspectRatio;
         }
         if (this.camera.aspect !== aspectRatio) {
             this.camera.left = - fitScreenMultHack * config.camera.frustumSize * aspectRatio / 2;

@@ -31,24 +31,9 @@ const sceneDescription = {
             path: 'assets/textures/icon_red.png'
         },
         {
-            name: 'towerFriendlyTex',
+            name: 'towerTex',
             type: 'texture',
-            path: 'assets/textures/tower_friendly.png'
-        },
-        {
-            name: 'towerEnemyTex',
-            type: 'texture',
-            path: 'assets/textures/tower_enemy.png'
-        },
-        {
-            name: 'castleFriendlyTex',
-            type: 'texture',
-            path: 'assets/textures/castle_friendly.png'
-        },
-        {
-            name: 'castleEnemyTex',
-            type: 'texture',
-            path: 'assets/textures/castle_enemy.png'
+            path: 'assets/textures/tower.png'
         },
         {
             name: 'castleProgressTex',

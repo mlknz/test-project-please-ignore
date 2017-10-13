@@ -21,9 +21,11 @@ class Tracks {
     constructor(assets) {
         this.mesh = new THREE.Object3D();
         this.mesh.name = 'tracks_root';
+        assets.textures.trackTex.minFilter = THREE.NearestFilter;
+        assets.textures.trackTex.magFilter = THREE.NearestFilter;
         for (let i = 0; i < 3; ++i) {
             const track = this._createTrack(assets.textures.trackTex);
-            track.position.x = i * 0.19 - 0.19;
+            track.position.x = i * 0.18 - 0.18;
             track.position.y = 0.1;
             track.userData.index = i;
             this.mesh.add(track);
@@ -34,11 +36,11 @@ class Tracks {
 
     _createTrack(tex) {
         const geom = new THREE.PlaneBufferGeometry(0.175, 0.5);
-        const mat = new THREE.MeshBasicMaterial({map: tex});
+        const mat = new THREE.MeshBasicMaterial({map: tex, transparent: true});
 
         const mesh = new THREE.Mesh(geom, mat);
         mesh.userData.defaultColor = new THREE.Color(0xffffff);
-        mesh.userData.selectedColor = new THREE.Color(0xcc5555);
+        mesh.userData.selectedColor = new THREE.Color(0xaa5555);
         mesh.position.z = 0.1;
         return mesh;
     }
@@ -78,7 +80,7 @@ class Tracks {
         const damageSign = cardInfo.color === 'red' ? 1 : -1; // todo: remove color field
         unit.userData.damage = cardInfo.damage * damageSign;
 
-        unit.position.y = unit.userData.friendly ? -0.07 : 0.07;
+        unit.position.y = unit.userData.friendly ? -0.09 : 0.09;
         track.add(unit);
     }
 

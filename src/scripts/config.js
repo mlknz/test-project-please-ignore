@@ -15,17 +15,11 @@ const config = {
     },
 
     camera: {
-        pos: [0, 0, 3],
+        pos: [0, 0, 5],
         target: [0, 0, 0],
         frustumSize: 1,
         near: 0.5,
         far: 10
-    },
-
-    controls: {
-        minDistance: 1,
-        maxDistance: 500,
-        rotateSpeed: 0.18
     },
 
     game: {
@@ -33,8 +27,7 @@ const config = {
         burn: [
             {'t': 10, 'damage': 2},
             {'t': 15, 'damage': 3},
-            {'t': 20, 'damage': 4},
-            {'t': 25, 'damage': 5}
+            {'t': 20, 'damage': 5}
         ]
     }
 };

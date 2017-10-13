@@ -5,7 +5,6 @@ if (module.hot) {
 const webgldetection = require('./webgldetection');
 
 import AppViewer from './app-viewer';
-// import AppUi from './app-ui';
 
 class App {
     constructor() {
@@ -23,7 +22,6 @@ class App {
 
         const appViewer = new AppViewer(renderer);
         this.appViewer = appViewer;
-        // const appUi = new AppUi(renderer);
 
         function resize() {
             const width = Math.floor(canvas.clientWidth * devicePixelRatio);
@@ -42,7 +40,6 @@ class App {
         function animate() {
             resize();
             appViewer.update(clock.getDelta());
-            // appUi.update();
             requestAnimationFrame(animate);
         }
 
