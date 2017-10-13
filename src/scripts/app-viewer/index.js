@@ -2,7 +2,6 @@ import config from '../config.js';
 import gamestate from '../gamestate.js';
 
 import SceneManager from './sceneManager';
-import Controls from '../controls';
 import Env from './prefabs/env.js';
 import Tracks from './prefabs/tracks.js';
 import Towers from './prefabs/towers.js';
@@ -32,6 +31,11 @@ class AppViewer {
         const w = config.camera.frustumSize * aspectRatio / 2;
         const h = config.camera.frustumSize / 2;
         this.camera = new THREE.OrthographicCamera(-w, w, h, -h, config.camera.near, config.camera.far);
+        this.camera.position.fromArray(config.camera.pos);
+        this.camera.lookAt((new THREE.Vector3()).fromArray(config.camera.target));
+        this.camera.near = config.camera.near;
+        this.camera.far = config.camera.far;
+        this.camera.updateProjectionMatrix();
 
         this.sceneReady = false;
         document.addEventListener('sceneReady', this.onSceneReady.bind(this));
@@ -50,9 +54,6 @@ class AppViewer {
 
     onSceneReady() {
         this.sceneReady = true;
-        this.controls = new Controls(this.camera, this.renderer.domElement);
-        this.controls.resetCameraOrbit();
-        this.controls.setEnabled(false);
 
         gamestate.phasesSeq = [
             gamestate.phases.PLAYER_ATTACK,
@@ -88,8 +89,6 @@ class AppViewer {
         if (!this.sceneReady) return;
 
         config.time += dt;
-
-        // this.controls.update(dt);
 
         this.renderer.render(this.sceneManager.scene, this.camera);
     }
@@ -143,11 +142,13 @@ class AppViewer {
             // setTimeout(() => {this.nextPhase();}, 300);
             this.nextPhase();
         } else if (gamestate.activePhase === gamestate.phases.APPLY) {
-            this._applyUnitsDamage();
+            this._applyUnitsDamage(); // 0, 500, 1500
             setTimeout(() => {
                 this._applyTowersBurn();
+            }, 1700);
+            setTimeout(() => {
                 if (!this._checkWinLose()) this.nextPhase();
-            }, 1200);
+            }, 2000);
         } else if (this._playerActive()) {
             gamestate.usedShuffleThisTurn = false;
             this.env.endButton.material.color = this.env.endButton.userData.defaultColor;
@@ -157,7 +158,7 @@ class AppViewer {
 
     _applyUnitsDamage() {
         for (let i = 0; i < 3; ++i) {
-            this._applyUnitsDamageOnTrack(i);
+            setTimeout(() => { this._applyUnitsDamageOnTrack(i); }, i * 500);
         }
     }
     _applyUnitsDamageOnTrack(trackIndex) {
@@ -166,7 +167,7 @@ class AppViewer {
         const ind = result.playerWon ? 1 : 0;
         gamestate.towersT[ind][trackIndex] = gamestate.towersT[ind][trackIndex] + result.damage;
         this.towers.setTowerTemperature(!result.playerWon, trackIndex, gamestate.towersT[ind][trackIndex]);
-        this.towers.updatePlayerTemperatures();
+        this.updateTemperatures();
     }
     _applyTowersBurn() {
         for (let i = 0; i < 3; ++i) {
@@ -180,8 +181,8 @@ class AppViewer {
             }
             gamestate.playerAdditiveT += pBurn;
             gamestate.enemyAdditiveT += eBurn;
+            this.updateTemperatures();
         }
-        this.updateTemperatures();
     }
 
     _createGameOverScreen(text) { // todo: use css
@@ -236,7 +237,6 @@ class AppViewer {
         gamestate.isMouseDown = true;
         let intersects = raycaster.intersectObjects(this.cards.mesh.children);
         gamestate.activeCard = intersects[0] ? intersects[0].object : null;
-
 
         intersects = raycaster.intersectObjects(this.env.mesh.children);
         if (intersects[0] && this._playerActive()) {
@@ -343,11 +343,7 @@ class AppViewer {
         }
     }
 
-    dispose() {
-        this.controls.dispose();
-        // this.clearScene();
-    }
-
+    dispose() {}
 }
 
 export default AppViewer;

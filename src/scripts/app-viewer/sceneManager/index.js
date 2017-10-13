@@ -1,10 +1,6 @@
 import AssetsLoader from '../assetsLoader';
 
 import sceneDescription from './sceneDescription.js';
-import materialsDescription from './materialsDescription';
-
-import MaterialDecorator from '../materialDecorator';
-import Batcher from '../batcher';
 
 const sceneReadyEvent = new Event('sceneReady');
 
@@ -13,10 +9,6 @@ class SceneManager {
         this.scene = new THREE.Scene();
 
         this.assetsLoader = new AssetsLoader(this.scene);
-
-        this.materialDecorator = new MaterialDecorator(materialsDescription);
-
-        this.batcher = new Batcher(this.scene, this.materialDecorator);
 
         document.addEventListener('assetsLoaded', this.onAssetsLoaded.bind(this));
 
@@ -27,13 +19,6 @@ class SceneManager {
         this.createSceneFromDescription(this.scene);
 
         this.scene.updateMatrixWorld();
-
-        this.materialDecorator.rewriteSingleMaterials(this.scene, this.assetsLoader.assets.textures);
-
-        this.batcher.batchSameGeomIdUndecoratedMeshes({
-            batchMeshesWithChildren: true,
-            excludeIfNameContains: []
-        });
 
         document.dispatchEvent(sceneReadyEvent);
     }

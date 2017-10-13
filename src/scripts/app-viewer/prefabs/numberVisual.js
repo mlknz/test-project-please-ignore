@@ -3,7 +3,7 @@ import fragmentShader from './shaders/animatedSprite.frag';
 
 const redColor = new THREE.Vector3(0.8, 0.2, 0.2);
 const blueColor = new THREE.Vector3(0.2, 0.2, 0.8);
-const greyColor = new THREE.Vector3(0.7, 0.7, 0.7);
+const greyColor = new THREE.Vector3(0.9, 0.9, 0.9);
 
 class NumberVisual {
     constructor(assets) {
