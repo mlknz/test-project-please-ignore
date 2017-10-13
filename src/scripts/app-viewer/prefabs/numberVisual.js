@@ -1,6 +1,10 @@
 import vertexShader from './shaders/animatedSprite.vert';
 import fragmentShader from './shaders/animatedSprite.frag';
 
+const redColor = new THREE.Vector3(0.8, 0.2, 0.2);
+const blueColor = new THREE.Vector3(0.2, 0.2, 0.8);
+const greyColor = new THREE.Vector3(0.7, 0.7, 0.7);
+
 class NumberVisual {
     constructor(assets) {
         this._assets = assets;
@@ -20,35 +24,35 @@ class NumberVisual {
             this.mesh.remove(this.mesh.children[i]);
         }
 
-        const isPositive = val > 0;
+        const color = val > 0 ? redColor : val === 0 ? greyColor : blueColor;
         const absVal = Math.abs(val);
         const isSingleDigit = absVal < 10;
 
         if (isSingleDigit) {
-            const number = this._createVisual(absVal, isPositive);
+            const number = this._createVisual(absVal, color);
             this.mesh.add(number);
         } else {
             const tens = Math.floor(absVal / 10);
             const units = absVal - tens * 10;
 
-            const n1 = this._createVisual(tens, isPositive);
-            n1.position.x = -0.5;
+            const n1 = this._createVisual(tens, color);
+            n1.position.x = -0.3;
             this.mesh.add(n1);
-            const n2 = this._createVisual(units, isPositive);
-            n2.position.x = 0.5;
+            const n2 = this._createVisual(units, color);
+            n2.position.x = 0.3;
             this.mesh.add(n2);
         }
 
         return this;
     }
 
-    _createVisual(absVal, isPositive) {
+    _createVisual(absVal, color) {
         const geom = new THREE.PlaneBufferGeometry(1, 1);
         const uniforms = {
             scaleX: {value: 5},
             scaleY: {value: 2},
             quadNumber: {value: absVal},
-            isPositive: {value: isPositive ? 1 : 0},
+            color: {value: color},
             map: {value: this._assets.textures.numbersTex}
         };
         const mat = new THREE.RawShaderMaterial({

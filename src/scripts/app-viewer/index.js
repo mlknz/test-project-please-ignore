@@ -76,7 +76,7 @@ class AppViewer {
         this.towers = new Towers(this.sceneManager.assetsLoader.assets);
         this.sceneManager.scene.add(this.towers.mesh);
 
-        this.cards = new Cards(this.sceneManager.assetsLoader.assets);
+        this.cards = new Cards(this.tracks, this.sceneManager.assetsLoader.assets);
         this.sceneManager.scene.add(this.cards.mesh);
 
         this.botLogic = new BotLogic(this);
@@ -223,6 +223,7 @@ class AppViewer {
     }
 
     onMouseDownTouchStart(e) {
+        e.preventDefault();
         let x = e.clientX;
         let y = e.clientY;
         if (e.changedTouches && e.changedTouches[0]) {
@@ -251,7 +252,8 @@ class AppViewer {
         }
     }
 
-    onMouseUpTouchEnd() {
+    onMouseUpTouchEnd(e) {
+        e.preventDefault();
         gamestate.isMouseDown = false;
         if (gamestate.activeCard) {
             gamestate.activeCard.position.x = gamestate.activeCard.userData.initPosX;
@@ -268,6 +270,7 @@ class AppViewer {
     }
 
     onMouseMoveTouchMove(e) {
+        e.preventDefault();
         let x = e.clientX;
         let y = e.clientY;
         if (e.changedTouches && e.changedTouches[0]) {

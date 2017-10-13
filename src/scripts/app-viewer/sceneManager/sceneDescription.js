@@ -16,6 +16,21 @@ const sceneDescription = {
             path: 'assets/textures/numbers.png'
         },
         {
+            name: 'iconAttackTex',
+            type: 'texture',
+            path: 'assets/textures/icon_attack.png'
+        },
+        {
+            name: 'iconBlueTex',
+            type: 'texture',
+            path: 'assets/textures/icon_blue.png'
+        },
+        {
+            name: 'iconRedTex',
+            type: 'texture',
+            path: 'assets/textures/icon_red.png'
+        },
+        {
             name: 'towerFriendlyTex',
             type: 'texture',
             path: 'assets/textures/tower_friendly.png'
@@ -69,56 +84,6 @@ const sceneDescription = {
             name: 'blueUnitTex',
             type: 'texture',
             path: 'assets/textures/soldier_blue.png'
-        },
-        {
-            name: 'cardBlue2Tex',
-            type: 'texture',
-            path: 'assets/textures/card_blue_2.png'
-        },
-        {
-            name: 'cardBlue4Tex',
-            type: 'texture',
-            path: 'assets/textures/card_blue_4.png'
-        },
-        {
-            name: 'cardBlue6Tex',
-            type: 'texture',
-            path: 'assets/textures/card_blue_6.png'
-        },
-        {
-            name: 'cardBlue8Tex',
-            type: 'texture',
-            path: 'assets/textures/card_blue_8.png'
-        },
-        {
-            name: 'cardBlue10Tex',
-            type: 'texture',
-            path: 'assets/textures/card_blue_10.png'
-        },
-        {
-            name: 'cardRed2Tex',
-            type: 'texture',
-            path: 'assets/textures/card_red_2.png'
-        },
-        {
-            name: 'cardRed4Tex',
-            type: 'texture',
-            path: 'assets/textures/card_red_4.png'
-        },
-        {
-            name: 'cardRed6Tex',
-            type: 'texture',
-            path: 'assets/textures/card_red_6.png'
-        },
-        {
-            name: 'cardRed8Tex',
-            type: 'texture',
-            path: 'assets/textures/card_red_8.png'
-        },
-        {
-            name: 'cardRed10Tex',
-            type: 'texture',
-            path: 'assets/textures/card_red_10.png'
         }
     ],
     model: {

@@ -60,7 +60,7 @@ class Tracks {
         return new THREE.Mesh(geom, mat);
     }
 
-    _createUnit(damage, color) {
+    createUnit(damage, color) {
         const unitRoot = new THREE.Object3D();
         for (let i = 0; i < damage; ++i) {
             const soldier = this._createUnitSoldier(color);
@@ -73,7 +73,7 @@ class Tracks {
 
     spawnUnitOnTrack(isFriendly, trackIndex, cardInfo) {
         const track = this.mesh.children[trackIndex];
-        const unit = this._createUnit(cardInfo.damage, cardInfo.color);
+        const unit = this.createUnit(cardInfo.damage, cardInfo.color);
         unit.userData.friendly = isFriendly;
         const damageSign = cardInfo.color === 'red' ? 1 : -1; // todo: remove color field
         unit.userData.damage = cardInfo.damage * damageSign;
@@ -96,7 +96,7 @@ class Tracks {
 
     _spawnResolvedUnit(isFriendly, trackIndex, damage) {
         const color = damage > 0 ? 'red' : 'blue';
-        const unit = this._createUnit(Math.abs(damage), color);
+        const unit = this.createUnit(Math.abs(damage), color);
         unit.userData.friendly = isFriendly;
         unit.position.y = unit.userData.friendly ? 0.09 : -0.09;
         this.mesh.children[trackIndex].add(unit);

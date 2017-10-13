@@ -14,8 +14,8 @@ const e = [
     [0.19, 0.37]
 ];
 
-const termometerWidth = 0.26;
-const termometerHeight = 0.014;
+const termometerWidth = 0.35;
+const termometerHeight = 0.035;
 
 class Towers {
     constructor(assets) {
@@ -58,14 +58,14 @@ class Towers {
         friendlyTermometer.position.y = -0.26;
         this.mesh.add(friendlyTermometer);
         this._friendlyT = this._createTermometerHandler();
-        this._friendlyT.position.y = -0.26;
+        this._friendlyT.position.y = -0.245;
         this.mesh.add(this._friendlyT);
 
         const enemyTermometer = this._createTermometer(assets.textures.castleProgressTex, termometerWidth, termometerHeight);
-        enemyTermometer.position.y = 0.47;
+        enemyTermometer.position.y = 0.45;
         this.mesh.add(enemyTermometer);
         this._enemyT = this._createTermometerHandler();
-        this._enemyT.position.y = 0.47;
+        this._enemyT.position.y = 0.465;
         this.mesh.add(this._enemyT);
     }
 
@@ -101,7 +101,7 @@ class Towers {
 
     _createTermometerHandler() {
         const mesh = new THREE.Mesh(
-            new THREE.PlaneBufferGeometry(0.024, 0.024),
+            new THREE.PlaneBufferGeometry(0.04, 0.04),
             new THREE.MeshBasicMaterial({map: this._assets.textures.castleProgressHandlerTex, transparent: true})
         );
         mesh.position.z = 0.3;
