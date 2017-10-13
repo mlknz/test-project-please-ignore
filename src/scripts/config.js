@@ -1,7 +1,7 @@
 const device = require('device.js')();
 
 const config = {
-    isDesktop: device.desktop(),
+    isMobile: !device.desktop(),
     isDebug: window.location.hash.substr(1) === 'debug',
     useDDSTextures: true,
     usePVRTextures: true,

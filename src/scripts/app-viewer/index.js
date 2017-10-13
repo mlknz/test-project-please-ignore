@@ -13,6 +13,7 @@ import {generateCard} from './model/card.js';
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let aspectRatio;
+let fitScreenMultHack = 1;
 
 const clampT = (v) => {
     return Math.min(config.game.maxT, Math.max(-config.game.maxT, v));
@@ -35,9 +36,16 @@ class AppViewer {
         this.sceneReady = false;
         document.addEventListener('sceneReady', this.onSceneReady.bind(this));
 
-        document.addEventListener('mousedown', this.onMouseDown.bind(this));
-        document.addEventListener('mouseup', this.onMouseUp.bind(this));
-        document.addEventListener('mousemove', this.onMouseMove.bind(this));
+        if (config.isMobile) {
+            document.addEventListener('touchstart', this.onMouseDownTouchStart.bind(this));
+            document.addEventListener('touchmove', this.onMouseMoveTouchMove.bind(this));
+            document.addEventListener('touchend', this.onMouseUpTouchEnd.bind(this));
+            document.addEventListener('touchcancel', this.onMouseUpTouchEnd.bind(this));
+        } else {
+            document.addEventListener('mousedown', this.onMouseDownTouchStart.bind(this));
+            document.addEventListener('mouseup', this.onMouseUpTouchEnd.bind(this));
+            document.addEventListener('mousemove', this.onMouseMoveTouchMove.bind(this));
+        }
     }
 
     onSceneReady() {
@@ -81,43 +89,7 @@ class AppViewer {
 
         config.time += dt;
 
-        this.controls.update(dt);
-        raycaster.setFromCamera(mouse, this.camera);
-        if (this._playerActive() && gamestate.activeCard) {
-            gamestate.activeCard.position.x = mouse.x * aspectRatio * 0.5;
-            gamestate.activeCard.position.y = mouse.y * 0.5;
-
-            raycaster.setFromCamera(mouse, this.camera);
-            const intersects = raycaster.intersectObjects(this.tracks.mesh.children);
-            const obj = intersects[0] ? intersects[0].object : null; // todo: highlight cards on hover
-            if (obj) {
-                if (gamestate.activeTrack) {
-                    if (gamestate.activeTrack.uuid !== obj.uuid) {
-                        gamestate.activeTrack.material.color = gamestate.activeTrack.userData.defaultColor;
-                        gamestate.activeTrack = obj;
-                        gamestate.activeTrack.material.color = gamestate.activeTrack.userData.selectedColor;
-                    }
-                } else {
-                    gamestate.activeTrack = obj;
-                    gamestate.activeTrack.material.color = gamestate.activeTrack.userData.selectedColor;
-                }
-            } else {
-                if (gamestate.activeTrack) {
-                    gamestate.activeTrack.material.color = gamestate.activeTrack.userData.defaultColor;
-                    gamestate.activeTrack = null;
-                }
-            }
-        }
-
-        if (this._playerActive()) {
-            const intersects = raycaster.intersectObjects(this.env.mesh.children);
-            const obj = intersects[0] ? intersects[0].object : null;
-            if (!obj || obj.name !== 'shuffle_button') {
-                this.env.shuffleButton.material.color = this.env.shuffleButton.userData.defaultColor;
-            } else {
-                this.env.shuffleButton.material.color = this.env.shuffleButton.userData.selectedColor;
-            }
-        }
+        // this.controls.update(dt);
 
         this.renderer.render(this.sceneManager.scene, this.camera);
     }
@@ -178,6 +150,8 @@ class AppViewer {
             }, 1200);
         } else if (this._playerActive()) {
             gamestate.usedShuffleThisTurn = false;
+            this.env.endButton.material.color = this.env.endButton.userData.defaultColor;
+            this.env.shuffleButton.material.color = this.env.endButton.userData.defaultColor;
         }
     }
 
@@ -248,24 +222,36 @@ class AppViewer {
         this.towers.updatePlayerTemperatures();
     }
 
-    onMouseDown() {
+    onMouseDownTouchStart(e) {
+        let x = e.clientX;
+        let y = e.clientY;
+        if (e.changedTouches && e.changedTouches[0]) {
+            x = e.changedTouches[0].clientX;
+            y = e.changedTouches[0].clientY;
+        }
+        mouse.x = (x / window.innerWidth) * 2 - 1;
+        mouse.y = - (y / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, this.camera);
         gamestate.isMouseDown = true;
         let intersects = raycaster.intersectObjects(this.cards.mesh.children);
-        gamestate.activeCard = intersects[0] && intersects[0].object.userData.friendly ? intersects[0].object : null;
+        gamestate.activeCard = intersects[0] ? intersects[0].object : null;
+
 
         intersects = raycaster.intersectObjects(this.env.mesh.children);
-        if (intersects[0] && intersects[0].object.name === 'shuffle_button' && this._playerActive() && !gamestate.usedShuffleThisTurn) {
-            gamestate.usedShuffleThisTurn = true;
-            // todo: make button inactive
-            this.shuffleRemainingCards(true);
-        }
-        if (intersects[0] && intersects[0].object.name === 'end_button' && this._playerActive()) {
-            // todo: make button inactive
-            this.nextPhase();
+        if (intersects[0] && this._playerActive()) {
+            if (intersects[0].object.name === 'shuffle_button' && !gamestate.usedShuffleThisTurn) {
+                gamestate.usedShuffleThisTurn = true;
+                this.env.shuffleButton.material.color = this.env.endButton.userData.inactiveColor;
+                this.shuffleRemainingCards(true);
+            } else if (intersects[0].object.name === 'end_button') {
+                this.env.endButton.material.color = this.env.endButton.userData.inactiveColor;
+                this.env.shuffleButton.material.color = this.env.endButton.userData.inactiveColor;
+                this.nextPhase();
+            }
         }
     }
 
-    onMouseUp() {
+    onMouseUpTouchEnd() {
         gamestate.isMouseDown = false;
         if (gamestate.activeCard) {
             gamestate.activeCard.position.x = gamestate.activeCard.userData.initPosX;
@@ -281,19 +267,75 @@ class AppViewer {
         gamestate.activeCard = undefined;
     }
 
-    onMouseMove(e) {
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;
+    onMouseMoveTouchMove(e) {
+        let x = e.clientX;
+        let y = e.clientY;
+        if (e.changedTouches && e.changedTouches[0]) {
+            x = e.changedTouches[0].clientX;
+            y = e.changedTouches[0].clientY;
+        }
+        mouse.x = (x / window.innerWidth) * 2 - 1;
+        mouse.y = - (y / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, this.camera);
+        if (this._playerActive()) this._updatePlayerControls();
+    }
+
+    _updatePlayerControls() {
+        this._processCardMovementIfNeeded();
+
+        const intersects = raycaster.intersectObjects(this.env.mesh.children);
+        const obj = intersects[0] ? intersects[0].object : null;
+        if (!gamestate.usedShuffleThisTurn) {
+            if (!obj || obj.name !== 'shuffle_button') {
+                this.env.shuffleButton.material.color = this.env.shuffleButton.userData.defaultColor;
+            } else {
+                this.env.shuffleButton.material.color = this.env.shuffleButton.userData.selectedColor;
+            }
+        }
+        if (!obj || obj.name !== 'end_button') {
+            this.env.endButton.material.color = this.env.endButton.userData.defaultColor;
+        } else {
+            this.env.endButton.material.color = this.env.endButton.userData.selectedColor;
+        }
+    }
+
+    _processCardMovementIfNeeded() {
+        if (!gamestate.activeCard) return;
+        gamestate.activeCard.position.x = mouse.x * fitScreenMultHack * aspectRatio * 0.5;
+        gamestate.activeCard.position.y = mouse.y * fitScreenMultHack * 0.5;
+
+        const intersects = raycaster.intersectObjects(this.tracks.mesh.children);
+        const obj = intersects[0] ? intersects[0].object : null;
+        if (obj) {
+            if (gamestate.activeTrack) {
+                if (gamestate.activeTrack.uuid !== obj.uuid) {
+                    gamestate.activeTrack.material.color = gamestate.activeTrack.userData.defaultColor;
+                    gamestate.activeTrack = obj;
+                    gamestate.activeTrack.material.color = gamestate.activeTrack.userData.selectedColor;
+                }
+            } else {
+                gamestate.activeTrack = obj;
+                gamestate.activeTrack.material.color = gamestate.activeTrack.userData.selectedColor;
+            }
+        } else {
+            if (gamestate.activeTrack) {
+                gamestate.activeTrack.material.color = gamestate.activeTrack.userData.defaultColor;
+                gamestate.activeTrack = null;
+            }
+        }
     }
 
     resize(width, height) {
         aspectRatio = width / height;
 
+        if (aspectRatio < 0.66) {
+            fitScreenMultHack = 0.66 / aspectRatio;
+        }
         if (this.camera.aspect !== aspectRatio) {
-            this.camera.left = -config.camera.frustumSize * aspectRatio / 2;
-            this.camera.right = config.camera.frustumSize * aspectRatio / 2;
-            this.camera.top = config.camera.frustumSize / 2;
-            this.camera.bottom = -config.camera.frustumSize / 2;
+            this.camera.left = - fitScreenMultHack * config.camera.frustumSize * aspectRatio / 2;
+            this.camera.right = fitScreenMultHack * config.camera.frustumSize * aspectRatio / 2;
+            this.camera.top = fitScreenMultHack * config.camera.frustumSize / 2;
+            this.camera.bottom = -fitScreenMultHack * config.camera.frustumSize / 2;
             this.camera.updateProjectionMatrix();
         }
     }

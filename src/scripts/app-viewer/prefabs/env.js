@@ -24,6 +24,7 @@ class Env {
         this.shuffleButton.name = 'shuffle_button';
         this.shuffleButton.userData.defaultColor = new THREE.Color(0xffffff);
         this.shuffleButton.userData.selectedColor = new THREE.Color(0xcc0000);
+        this.shuffleButton.userData.inactiveColor = new THREE.Color(0x666666);
 
         this.shuffleButton.position.x = -0.23;
         this.shuffleButton.position.y = -0.27;
@@ -36,6 +37,9 @@ class Env {
         const mat = new THREE.MeshBasicMaterial({map: tex, transparent: true});
         this.endButton = new THREE.Mesh(geom, mat);
         this.endButton.name = 'end_button';
+        this.endButton.userData.defaultColor = new THREE.Color(0xffffff);
+        this.endButton.userData.selectedColor = new THREE.Color(0xcc0000);
+        this.endButton.userData.inactiveColor = new THREE.Color(0x666666);
 
         this.endButton.position.x = 0.23;
         this.endButton.position.y = -0.27;
