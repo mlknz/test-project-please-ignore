@@ -1,4 +1,4 @@
-precision mediump float;
+precision highp float;
 
 attribute vec3 position;
 attribute vec2 uv;
@@ -14,7 +14,7 @@ varying vec2 vUv;
 
 void main() {
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    float y = floor(quadNumber / scaleX);
+    float y = floor(quadNumber / scaleX + 0.1);
     float x = quadNumber - scaleX * y;
     vUv = (uv + vec2(x, y)) / vec2(scaleX, scaleY);
 }
