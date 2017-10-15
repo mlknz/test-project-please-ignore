@@ -25,7 +25,7 @@ class Tracks {
         assets.textures.trackTex.magFilter = THREE.NearestFilter;
         for (let i = 0; i < 3; ++i) {
             const track = this._createTrack(assets.textures.trackTex);
-            track.position.x = i * 0.18 - 0.18;
+            track.position.x = i * 0.184 - 0.184;
             track.position.y = 0.1;
             track.userData.index = i;
             this.mesh.add(track);
@@ -35,7 +35,7 @@ class Tracks {
     }
 
     _createTrack(tex) {
-        const geom = new THREE.PlaneBufferGeometry(0.175, 0.5);
+        const geom = new THREE.PlaneBufferGeometry(0.175, 0.46);
         const mat = new THREE.MeshBasicMaterial({map: tex, transparent: true});
 
         const mesh = new THREE.Mesh(geom, mat);
@@ -80,7 +80,7 @@ class Tracks {
         const damageSign = cardInfo.color === 'red' ? 1 : -1; // todo: remove color field
         unit.userData.damage = cardInfo.damage * damageSign;
 
-        unit.position.y = unit.userData.friendly ? -0.09 : 0.09;
+        unit.position.y = unit.userData.friendly ? -0.093 : 0.093;
         track.add(unit);
     }
 

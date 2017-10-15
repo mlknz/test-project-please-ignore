@@ -7,6 +7,7 @@ const config = {
     usePVRTextures: true,
 
     time: 0,
+    fadeDuration: 1,
 
     renderer: {
         clearColor: 0x141424,
@@ -25,9 +26,9 @@ const config = {
     game: {
         maxT: 10,
         burn: [
-            {'t': 10, 'damage': 2},
-            {'t': 15, 'damage': 3},
-            {'t': 20, 'damage': 5}
+            {'t': 6, 'damage': 2},
+            {'t': 12, 'damage': 3},
+            {'t': 18, 'damage': 5}
         ]
     }
 };

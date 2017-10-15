@@ -1,32 +1,18 @@
 import gamestate from '../gamestate.js';
-import config from '../config.js';
 
 class BotLogic {
     constructor(context) {
         this.context = context;
     }
 
-    makeTurn(isAttack) {
-        const maxTemperature = config.game.maxT;
-        const botHand = gamestate.enemyHand; // available cards, look at model/card.js.
-        const playerTemperature = gamestate.playerT;
-        const botTemperature = gamestate.enemyT;
-        const playerTowersTemperatures = gamestate.towersT[0];
+    makeTurn(/* isAttack */) {
+        const botHand = gamestate.enemyHand;
         const enemyTowersTemperatures = gamestate.towersT[1];
-
-
-        console.log('BotLogic');
-        console.log('isAttack:', isAttack, ', hand:', botHand[0], botHand[1], botHand[2], botHand[3],
-            'maxT', maxTemperature,
-            'temperatures:', playerTemperature, botTemperature,
-            'towers:', playerTowersTemperatures, enemyTowersTemperatures);
 
         // this.context.shuffleRemainingCards(false); // call to change remaining cards
         // this.context.tracks.getUnitOnTrack(true, trackIndex); // call to know what player played if you are defending
-        // this.doSomething(enemyTowersTemperatures);
 
         const towerIX = this.sortedTowersIndexes(enemyTowersTemperatures);
-
 
         // console.log('towerIX',towerIX,enemyTowersTemperatures);
 
@@ -73,7 +59,7 @@ class BotLogic {
             // console.log('towerTemperature,botCards[i].price',towerTemperature,botCards[i].price);
 
         }
-    // console.log('prices, min, min index ', allPrices, Math.min.apply(Math, allPrices),allPrices.indexOf(Math.min.apply(Math, allPrices)));
+        // console.log('prices, min, min index ', allPrices, Math.min.apply(Math, allPrices),allPrices.indexOf(Math.min.apply(Math, allPrices)));
         return allPrices.indexOf(Math.min.apply(Math, allPrices));
 
     }

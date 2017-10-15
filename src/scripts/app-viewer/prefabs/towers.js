@@ -9,9 +9,9 @@ const p = [
 ];
 
 const e = [
-    [-0.188, 0.37],
-    [0.0, 0.37],
-    [0.188, 0.37]
+    [-0.188, 0.35],
+    [0.0, 0.35],
+    [0.188, 0.35]
 ];
 
 const termometerWidth = 0.32;
@@ -28,7 +28,7 @@ class Towers {
 
         this._friendlyTowersT = [];
         this._enemyTowersT = [];
-        this._fadingDamage = [];
+        this._fadingDamageArr = [];
 
         for (let i = 0; i < p.length; ++i) { // friendly
             const tower = this._createTower(assets.textures.towerTex);
@@ -80,14 +80,31 @@ class Towers {
     }
 
     showFadingDamage(isFriendly, trackIndex, value) {
-        const fading = (new NumberVisual(this._assets)).setSize(0.15).setValue(value);
+        const fading = (new NumberVisual(this._assets)).setSize(0.03).setValue(value);
         const towers = isFriendly ? this._friendlyTowersT : this._enemyTowersT;
-        // towers[trackIndex].mesh.parent.add(fading.mesh); // todo: fading damage
-        this._fadingDamage.push(fading);
+        fading.mesh.userData.startTime = config.time;
+        fading.mesh.userData.endTime = config.time + config.fadeDuration;
+        fading.mesh.userData.startY = 0.004;
+        fading.mesh.userData.endY = 0.06;
+        fading.mesh.position.x = 0.072;
+        fading.mesh.position.y = fading.mesh.userData.startY;
+
+        towers[trackIndex].mesh.parent.add(fading.mesh);
+        this._fadingDamageArr.push(fading);
     }
 
     update() {
-
+        for (let i = this._fadingDamageArr.length - 1; i >= 0; --i) {
+            const f = this._fadingDamageArr[i];
+            if (config.time > f.mesh.userData.endTime) {
+                f.mesh.parent.remove(f.mesh);
+                this._fadingDamageArr.splice(i, 1);
+            } else {
+                const t = (config.time - f.mesh.userData.startTime) / (f.mesh.userData.endTime - f.mesh.userData.startTime);
+                f.setOpacity(1 - t * t * t);
+                f.mesh.position.y = f.mesh.userData.startY + t * (f.mesh.userData.endY - f.mesh.userData.startY);
+            }
+        }
     }
 
     _createTower(tex) {

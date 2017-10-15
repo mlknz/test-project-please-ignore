@@ -179,6 +179,9 @@ class AppViewer {
                 if (p > config.game.burn[j].t) pBurn = config.game.burn[j].damage * Math.sign(gamestate.towersT[0][i]);
                 if (e > config.game.burn[j].t) eBurn = config.game.burn[j].damage * Math.sign(gamestate.towersT[1][i]);
             }
+            if (pBurn !== 0) this.towers.showFadingDamage(true, i, pBurn);
+            if (eBurn !== 0) this.towers.showFadingDamage(false, i, eBurn);
+
             gamestate.playerAdditiveT += pBurn;
             gamestate.enemyAdditiveT += eBurn;
             this.updateTemperatures();

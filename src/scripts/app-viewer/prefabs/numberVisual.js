@@ -19,6 +19,12 @@ class NumberVisual {
         return this;
     }
 
+    setOpacity(value) {
+        this.mesh.children.forEach(c => {
+            c.material.uniforms.opacity.value = value;
+        });
+    }
+
     setValue(val) {
         for (let i = this.mesh.children.length - 1; i >= 0; --i) {
             this.mesh.remove(this.mesh.children[i]);
@@ -53,6 +59,7 @@ class NumberVisual {
             scaleY: {value: 2},
             quadNumber: {value: absVal},
             color: {value: color},
+            opacity: {value: 1},
             map: {value: this._assets.textures.numbersTex}
         };
         const mat = new THREE.RawShaderMaterial({
