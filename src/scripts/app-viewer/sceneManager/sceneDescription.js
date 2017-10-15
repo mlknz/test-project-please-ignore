@@ -36,6 +36,16 @@ const sceneDescription = {
             path: 'assets/textures/tower.png'
         },
         {
+            name: 'towerRedTex',
+            type: 'texture',
+            path: 'assets/textures/tower_fire.png'
+        },
+        {
+            name: 'towerBlueTex',
+            type: 'texture',
+            path: 'assets/textures/tower_ice.png'
+        },
+        {
             name: 'castleProgressTex',
             type: 'texture',
             path: 'assets/textures/castle_progress.png'
