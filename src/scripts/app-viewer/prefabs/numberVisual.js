@@ -4,10 +4,13 @@ import fragmentShader from './shaders/animatedSprite.frag';
 const redColor = new THREE.Vector3(0.8, 0.2, 0.2);
 const blueColor = new THREE.Vector3(0.3, 0.3, 0.9);
 const greyColor = new THREE.Vector3(0.9, 0.9, 0.9);
+const brightRedColor = new THREE.Vector3(0.9, 0, 0);
+const brightBlueColor = new THREE.Vector3(0, 0, 0.9);
 
 class NumberVisual {
     constructor(assets) {
         this._assets = assets;
+        this.useBrightColor = false;
 
         this.mesh = new THREE.Object3D();
         this.mesh.position.z = 0.3;
@@ -23,6 +26,11 @@ class NumberVisual {
         this.mesh.children.forEach(c => {
             c.material.uniforms.opacity.value = value;
         });
+        return this;
+    }
+    setUseBrightColor(value) {
+        this.useBrightColor = value;
+        return this;
     }
 
     setValue(val) {
@@ -30,7 +38,11 @@ class NumberVisual {
             this.mesh.remove(this.mesh.children[i]);
         }
 
-        const color = val > 0 ? redColor : val === 0 ? greyColor : blueColor;
+        let color = val > 0 ? redColor : val < 0 ? blueColor : greyColor;
+        if (this.useBrightColor) {
+            if (val > 0) color = brightRedColor;
+            else if (val < 0) color = brightBlueColor;
+        }
         const absVal = Math.abs(val);
         const isSingleDigit = absVal < 10;
 

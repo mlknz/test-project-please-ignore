@@ -80,7 +80,7 @@ class Towers {
     }
 
     showFadingDamage(isFriendly, trackIndex, value) {
-        const fading = (new NumberVisual(this._assets)).setSize(0.03).setValue(value);
+        const fading = (new NumberVisual(this._assets)).setSize(0.03).setUseBrightColor(true).setValue(value);
         const towers = isFriendly ? this._friendlyTowersT : this._enemyTowersT;
         fading.mesh.userData.startTime = config.time;
         fading.mesh.userData.endTime = config.time + config.fadeDuration;
